@@ -67,8 +67,10 @@ client.on('voiceStateUpdate', async(oldState, newState) => {
 				id:id,
 				userid:userid,
 				username:username,
-				in: datetime,
-				inunix:dateUnix,
+				in: [datetime],
+				inunix:[dateUnix],
+				out:[],
+				outunix:[],
 			},{merge: true});
 		}
 		// return channel.send(`**参加** ${oldState.member.user.tag}さんが入室したよ！`);
@@ -189,8 +191,8 @@ client.on('guildScheduledEventUpdate', async(oldState,newState) => {
 			if (Math.max(...doc.data().inunix)>Math.max(...doc.data().outunix)) {
 				console.log("滞在履歴ありのため入室時刻を新たに記録します")
 				docRef.set({ 
-					out: FieldValue.arrayUnion(datetime),
-					outunix:FieldValue.arrayUnion(dateUnix),
+					in: FieldValue.arrayUnion(datetime),
+					inunix:FieldValue.arrayUnion(dateUnix),
 				},{merge: true});
 			}
 		})
@@ -201,10 +203,21 @@ client.on('guildScheduledEventUpdate', async(oldState,newState) => {
 		var dateUnix = Date.now();
 		// イベント終了日時のunix変換
 		var dateJoin = new Date();
+		var datetime = dateJoin.getFullYear() + "-"
+		+ (dateJoin.getMonth()+1)  + "-" 
+		+ dateJoin.getDate() + "T"  
+		+ dateJoin.getHours() + ":"  
+		+ dateJoin.getMinutes() + ":" 
+		+ dateJoin.getSeconds() + "." 
+		+ dateJoin % 1000000
+		+ "+09:00" ;
+		
 		const id = dateJoin.getFullYear().toString() + (dateJoin.getMonth()+1).toString() + dateJoin.getDate().toString()
 		// テスト
 		const snapshot = await db.collectionGroup("attendances").where("id", "==", id).get()
 		var start=0;
+		// 参加者を格納する配列
+		var arr = [];
 		snapshot.forEach(doc => {
 			console.log(doc.id, '=>', doc.data());
 			for(let i = 0; i < doc.data().inunix.length; i++){
@@ -215,14 +228,24 @@ client.on('guildScheduledEventUpdate', async(oldState,newState) => {
 				}
 			}
 			// 参加時間数を計算。ミリ秒のため60000で割る
+			// 10分以上参加していれば参加者にカウント
 			if (start!=0) {
 				const attendTime = ~~((dateUnix-start)/60000)
 				console.log(doc.data().username,'さん');
 				console.log(attendTime,'分参加');
 				console.log(start)
 				console.log(dateUnix)
+				if (attendTime >= 0) {
+					arr.push(doc.data().userid)
+				}
 			}
 		});
+		console.log({
+					"event_name": newState.name,
+					"event_description": newState.description,
+					"event_date": datetime,
+					"userid": arr
+				})
 		// https://discord.com/api/oauth2/authorize?client_id=1051171120277102664&permissions=8623492096&scope=bot
 	}
 });
