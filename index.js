@@ -1,4 +1,5 @@
 // 各種インポート
+const { notionPageUpdate } = require('./notion.js');
 require('dotenv').config();
 const { Client, GatewayIntentBits } = require('discord.js');
 
@@ -203,14 +204,7 @@ client.on('guildScheduledEventUpdate', async(oldState,newState) => {
 		var dateUnix = Date.now();
 		// イベント終了日時のunix変換
 		var dateJoin = new Date();
-		var datetime = dateJoin.getFullYear() + "-"
-		+ (dateJoin.getMonth()+1)  + "-" 
-		+ dateJoin.getDate() + "T"  
-		+ dateJoin.getHours() + ":"  
-		+ dateJoin.getMinutes() + ":" 
-		+ dateJoin.getSeconds() + "." 
-		+ dateJoin % 1000000
-		+ "+09:00" ;
+		var datetime = dateJoin.toISOString(dateUnix);
 		
 		const id = dateJoin.getFullYear().toString() + (dateJoin.getMonth()+1).toString() + dateJoin.getDate().toString()
 		// テスト
@@ -246,6 +240,13 @@ client.on('guildScheduledEventUpdate', async(oldState,newState) => {
 					"event_date": datetime,
 					"userid": arr
 				})
+		const reputationData = {
+			event_name: newState.name,
+			event_description: newState.description,
+			event_date: datetime,
+			userid: arr
+		}
+		await notionPageUpdate(reputationData)
 		// https://discord.com/api/oauth2/authorize?client_id=1051171120277102664&permissions=8623492096&scope=bot
 	}
 });
