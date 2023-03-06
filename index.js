@@ -1,4 +1,5 @@
 // 各種インポート
+const { notionPageUpdate } = require('./notion.js');
 require('dotenv').config();
 const { Client, GatewayIntentBits } = require('discord.js');
 
