@@ -28,7 +28,10 @@ client.on('voiceStateUpdate', async(oldState, newState) => {
 	console.log(datetime);
 	
 	// yyyymmddをコレクションIDとし、参加情報(ユーザー情報・入退室時刻)をドキュメントとして保存
-	const id = dateJoin.getFullYear().toString() + (dateJoin.getMonth()+1).toString() + dateJoin.getDate().toString()
+	var y = dateJoin.getFullYear().toString()
+		var m = ("00" + (dateJoin.getMonth()+1)).slice(-2).toString();
+		var d = ("00" + (dateJoin.getDate())).slice(-2).toString();
+		const id = y + m + d
 	const channel = oldState.member.guild.channels.cache.get("945194711973498924");
 	const FieldValue = require('firebase-admin').firestore.FieldValue;
 
@@ -132,7 +135,10 @@ client.on('messageCreate', async message => {
 	+ dateJoin.getSeconds();
 	console.log(datetime);
 	// yyyymmddをコレクションIDとし、参加情報(ユーザー情報・入退室時刻)をドキュメントとして保存している。参加者であるかの判断のためコレクションIDを取得
-	const id = dateJoin.getFullYear().toString() + (dateJoin.getMonth()+1).toString() + dateJoin.getDate().toString()
+	var y = dateJoin.getFullYear().toString()
+	var m = ("00" + (dateJoin.getMonth()+1)).slice(-2).toString();
+	var d = ("00" + (dateJoin.getDate())).slice(-2).toString();
+	const id = y + m + d
     console.log("ボイスチャンネルにメッセージが投稿されました")
 	const FieldValue = require('firebase-admin').firestore.FieldValue;
 	const userid = message.author.id
@@ -184,7 +190,10 @@ client.on('guildScheduledEventUpdate', async(oldState,newState) => {
 		+ dateJoin.getHours() + ":"  
 		+ dateJoin.getMinutes() + ":" 
 		+ dateJoin.getSeconds();
-		const id = dateJoin.getFullYear().toString() + (dateJoin.getMonth()+1).toString() + dateJoin.getDate().toString()
+		var y = dateJoin.getFullYear().toString()
+		var m = ("00" + (dateJoin.getMonth()+1)).slice(-2).toString();
+		var d = ("00" + (dateJoin.getDate())).slice(-2).toString();
+		const id = y + m + d
 		const snapshot = await db.collectionGroup("attendances").where("id", "==", id).get()
 		var start=0;
 		snapshot.forEach(async doc => {
@@ -206,7 +215,10 @@ client.on('guildScheduledEventUpdate', async(oldState,newState) => {
 		var dateJoin = new Date();
 		var datetime = dateJoin.toISOString(dateUnix);
 		
-		const id = dateJoin.getFullYear().toString() + (dateJoin.getMonth()+1).toString() + dateJoin.getDate().toString()
+		var y = dateJoin.getFullYear().toString()
+		var m = ("00" + (dateJoin.getMonth()+1)).slice(-2).toString();
+		var d = ("00" + (dateJoin.getDate())).slice(-2).toString();
+		const id = y + m + d
 		// テスト
 		const snapshot = await db.collectionGroup("attendances").where("id", "==", id).get()
 		var start=0;
@@ -252,3 +264,4 @@ client.on('guildScheduledEventUpdate', async(oldState,newState) => {
 });
 
 client.login(process.env.voiceToken).catch(console.error);
+
