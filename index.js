@@ -299,34 +299,6 @@ client.on('guildScheduledEventUpdate', async(oldState,newState) => {
 				}
 			}
 		}
-		// snapshot.forEach(doc => {
-		// 	// inunixがない場合は処理をスキップ
-		// 	if (!doc.data().inunix) {
-		// 		console.log("inunixがないためスキップします。userid=>",doc.data().userid)
-		// 		return;
-		// 	}
-		// 	console.log(doc.id, '=>', doc.data());
-		// 	for(let i = 0; i < doc.data().inunix.length; i++){
-		// 		// "c"の要素にあたったら、繰り返し処理を終了し、forブロックを抜ける
-		// 		// 
-		// 		if(Math.abs(startTime-doc.data().inunix[i]) <= 900000){
-		// 			inunix=doc.data().inunix[i]
-		// 			break;
-		// 		}
-		// 	}
-		// 	// 参加時間数を計算。ミリ秒のため60000で割る
-		// 	// 10分以上参加していれば参加者にカウント
-		// 	if (inunix!=0) {
-		// 		const attendTime = ~~((dateUnix-inunix)/60000)
-		// 		console.log(doc.data().username,'さん');
-		// 		console.log(attendTime,'分参加');
-		// 		console.log(inunix)
-		// 		console.log(dateUnix)
-		// 		if (attendTime >= 0) {
-		// 			arr.push(doc.data().userid)
-		// 		}
-		// 	}
-		// });
 		console.log({
 					"event_name": newState.name,
 					"event_description": newState.description,
