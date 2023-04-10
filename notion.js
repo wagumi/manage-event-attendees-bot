@@ -69,6 +69,11 @@ const notionPageUpdate = async (data) => {
 							}
 						}
 					]
+				},
+				"weighting": {
+					"select": {
+						"name": "⭐️"
+					}
 				}
 			},
 		});
