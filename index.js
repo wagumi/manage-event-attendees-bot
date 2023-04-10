@@ -16,7 +16,6 @@ const db = admin.firestore();
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildScheduledEvents] });
 
 client.on('voiceStateUpdate', async(oldState, newState) => {
-	console.log("VCへの参加・退出を検知しました。ユーザー名：" + oldState.member.user.username + "ID:" + oldState.member.user.id + "")
 	//All Date and Time (days,month,year,hours,minutes,seconds)
 	var dateJoin = new Date(); 
 	var dateUnix = Date.now();
@@ -37,6 +36,7 @@ client.on('voiceStateUpdate', async(oldState, newState) => {
 	const FieldValue = require('firebase-admin').firestore.FieldValue;
 
 	if (oldState.channelId === null && newState.channelId !== null) {
+		console.log("VCへの参加を検知しました。ユーザー名：" + oldState.member.user.username + " ID:" + oldState.member.user.id + "")
 		// ユーザーIDをコレクションIDとし、ユーザー情報をドキュメントとして保存
 		const usersRef = db.collection("users").doc(oldState.member.user.id);
 		const usersDocSnap = await usersRef.get()
@@ -82,6 +82,7 @@ client.on('voiceStateUpdate', async(oldState, newState) => {
 		return;
 	}
 	else if (oldState.channelId !== null && newState.channelId === null) {
+		console.log("VCからの退出を検知しました。ユーザー名：" + oldState.member.user.username + " ID:" + oldState.member.user.id + "")
 		// 退室時刻を計算
 		var dateJoin = new Date(); 
 		var dateUnix = Date.now();
