@@ -72,6 +72,7 @@ const notionPageUpdate = async (data) => {
 				},
 				"weighting": {
 					"select": {
+						"id": '4184cdf4-599e-472e-921f-acf2af1ebd9c',
 						"name": "⭐️"
 					}
 				}
