@@ -19,7 +19,7 @@ const notionPageUpdate = async (data) => {
 
 
 		const request = {
-			//本番用
+			//テスト用
 			database_id: process.env.WAGUMI_TEST_DB_ID,
 		}
 
@@ -72,7 +72,7 @@ const notionPageUpdate = async (data) => {
 				},
 				"weighting": {
 					"select": {
-						"name": "⭐️"
+						"id": '4184cdf4-599e-472e-921f-acf2af1ebd9c',
 					}
 				}
 			},
@@ -106,7 +106,7 @@ const userQuery = async (userid) => {
 // test
 // const test = async () => {
 // 	const data = {
-// 		event_name: "testaaa",
+// 		event_name: "これはどうだろう",
 // 		event_description: "test",
 // 		event_date: "2021-10-01",
 // 		userid: ["937906941257199667"],
