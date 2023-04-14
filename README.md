@@ -1,6 +1,27 @@
-# manage-event-attendees-bot
+# discord-event-tracking-bot
 
-# セットアップ方法
-1:npm install
-2:firebaseの認証情報を記録したファイルの設置（別途共有します）
-3:Discordの認証キーを.envに置く（別途共有します）
+## 概要
+
+Discordイベントの参加者をFirestoreに記録し、終了時にNotionに書き込むDiscordボット
+
+## セットアップ方法
+
+### 必要なnpmライブラリをインストール
+
+```shell
+npm install
+```
+
+### 必要なシークレット情報をローカルに配置
+
+和組DAOのDiscordにて開発メンバーに以下の情報について聞いてみてください。
+
+- Firebaseの認証情報を記録したファイル (wagumi.json)
+- Discordボットのシークレットトークン
+- 書き込むNotionの情報とAPIシークレットトークン
+
+### ボット起動
+
+```shell
+npm start
+```
