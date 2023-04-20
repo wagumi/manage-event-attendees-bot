@@ -1,8 +1,8 @@
 const { Client } = require('@notionhq/client');
-
+const settings = require('./settings.json');
 require('dotenv').config();
 
-const notion = new Client({ auth: process.env.WAGUMI_TEST_API_TOKEN });
+const notion = new Client({ auth: process.env.NOTION_API_TOKEN });
 
 const notionPageUpdate = async (data) => {
 	try {
@@ -17,10 +17,8 @@ const notionPageUpdate = async (data) => {
 			data.image = "https://pbs.twimg.com/profile_images/1465762338871644162/nYSe4c4G_400x400.jpg";
 		}
 
-
 		const request = {
-			//テスト用
-			database_id: process.env.WAGUMI_TEST_DB_ID,
+			database_id: settings.NOTION_CONTRIBUTION_DB_ID,
 		}
 
 		const databaseResponse = await notion.databases.retrieve({ database_id: request.database_id })
@@ -86,7 +84,7 @@ exports.notionPageUpdate = notionPageUpdate;
 
 const userQuery = async (userid) => {
 	const userRequest = {
-		database_id: process.env.WAGUMI_TEST_USER_ID,
+		database_id: settings.NOTION_MEMBER_DB_ID,
 
 		filter: {
 			property: "id",

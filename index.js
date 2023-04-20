@@ -2,6 +2,7 @@
 const { notionPageUpdate } = require('./notion.js');
 require('dotenv').config();
 const { Client, GatewayIntentBits } = require('discord.js');
+const settings = require('./settings.json');
 
 // firestore
 const admin = require("firebase-admin");
@@ -13,26 +14,33 @@ admin.initializeApp({
 const db = admin.firestore();
 
 // discordBotの初期化
-const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildScheduledEvents] });
+const client = new Client({
+	intents: [
+		GatewayIntentBits.Guilds,
+		GatewayIntentBits.GuildVoiceStates,
+		GatewayIntentBits.MessageContent,
+		GatewayIntentBits.GuildMessages,
+		GatewayIntentBits.GuildScheduledEvents
+	]
+});
 
 client.on('voiceStateUpdate', async(oldState, newState) => {
 	//All Date and Time (days,month,year,hours,minutes,seconds)
-	var dateJoin = new Date(); 
+	var dateJoin = new Date();
 	var dateUnix = Date.now();
 	var datetime = dateJoin.getFullYear() + "/"
-	+ (dateJoin.getMonth()+1)  + "/" 
-	+ dateJoin.getDate() + " @ "  
-	+ dateJoin.getHours() + ":"  
-	+ dateJoin.getMinutes() + ":" 
-	+ dateJoin.getSeconds();
+		+ (dateJoin.getMonth()+1)  + "/"
+		+ dateJoin.getDate() + " @ "
+		+ dateJoin.getHours() + ":"
+		+ dateJoin.getMinutes() + ":"
+		+ dateJoin.getSeconds();
 	console.log(datetime);
-	
+
 	// yyyymmddをコレクションIDとし、参加情報(ユーザー情報・入退室時刻)をドキュメントとして保存
 	var y = dateJoin.getFullYear().toString()
-		var m = ("00" + (dateJoin.getMonth()+1)).slice(-2).toString();
-		var d = ("00" + (dateJoin.getDate())).slice(-2).toString();
-		const id = y + m + d
-	const channel = oldState.member.guild.channels.cache.get("945194711973498924");
+	var m = ("00" + (dateJoin.getMonth()+1)).slice(-2).toString();
+	var d = ("00" + (dateJoin.getDate())).slice(-2).toString();
+	const id = y + m + d
 	const FieldValue = require('firebase-admin').firestore.FieldValue;
 
 	if (oldState.channelId === null && newState.channelId !== null) {
@@ -59,16 +67,18 @@ client.on('voiceStateUpdate', async(oldState, newState) => {
 		const doc = await docRef.get()
 		if (doc.exists && doc.data().in!=undefined) {
 			console.log("すでに入室記録が存在します。配列に要素を追加します")
-			docRef.set({ 
+			docRef.set({
 				id:id,
 				userid:userid,
 				username:username,
 				in:FieldValue.arrayUnion(datetime),
 				inunix:FieldValue.arrayUnion(dateUnix)
-			},{merge: true});
+			}, {
+				merge: true
+			});
 		} else {
 			console.log("入室記録が存在しないため、新たに作成します")
-			docRef.set({ 
+			docRef.set({
 				id:id,
 				userid:userid,
 				username:username,
@@ -76,7 +86,9 @@ client.on('voiceStateUpdate', async(oldState, newState) => {
 				inunix:[dateUnix],
 				out:[],
 				outunix:[],
-			},{merge: true});
+			}, {
+				merge: true
+			});
 		}
 		// return channel.send(`**参加** ${oldState.member.user.tag}さんが入室したよ！`);
 		return;
@@ -84,14 +96,14 @@ client.on('voiceStateUpdate', async(oldState, newState) => {
 	else if (oldState.channelId !== null && newState.channelId === null) {
 		console.log("VCからの退出を検知しました。ユーザー名：" + oldState.member.user.username + " ID:" + oldState.member.user.id + "")
 		// 退室時刻を計算
-		var dateJoin = new Date(); 
+		var dateJoin = new Date();
 		var dateUnix = Date.now();
 		var datetime = dateJoin.getFullYear() + "/"
-		+ (dateJoin.getMonth()+1)  + "/" 
-		+ dateJoin.getDate() + " @ "  
-		+ dateJoin.getHours() + ":"  
-		+ dateJoin.getMinutes() + ":" 
-		+ dateJoin.getSeconds();
+			+ (dateJoin.getMonth()+1)  + "/"
+			+ dateJoin.getDate() + " @ "
+			+ dateJoin.getHours() + ":"
+			+ dateJoin.getMinutes() + ":"
+			+ dateJoin.getSeconds();
 		console.log(datetime);
 
 		const userid = newState.member.user.id
@@ -100,7 +112,7 @@ client.on('voiceStateUpdate', async(oldState, newState) => {
 		const doc = await docRef.get()
 		if (doc.exists) {
 			console.log("入室記録が存在しました。退室時刻を記録します")
-			docRef.set({ 
+			docRef.set({
 				id:id,
 				userid:userid,
 				username:username,
@@ -110,7 +122,7 @@ client.on('voiceStateUpdate', async(oldState, newState) => {
 		} else {
 			console.log("入室記録が存在しませんでした。新たに退室時刻のみ記録します")
 			const user = newState.member.user
-			docRef.set({ 
+			docRef.set({
 				id:id,
 				userid:userid,
 				username:username,
@@ -128,15 +140,15 @@ client.on('voiceStateUpdate', async(oldState, newState) => {
 client.on('messageCreate', async message => {
     if (message.author.bot) return; // Botには反応しないようにする
 	// 指定のチャンネル以外では動作しないようにする
-	if (message.channelId !== "945194711973498923" && message.channelId !==  "916064247950225449" && message.channelId !== "990802818128564274") return; 
+	if (!settings.VOICE_CHANNELS_TO_TRACK.includes(message.channelId)) return;
 
 	// メッセージ投稿日時の計算
-	var dateJoin = new Date(); 
+	var dateJoin = new Date();
 	var datetime = dateJoin.getFullYear() + "/"
-	+ (dateJoin.getMonth()+1)  + "/" 
-	+ dateJoin.getDate() + " @ "  
-	+ dateJoin.getHours() + ":"  
-	+ dateJoin.getMinutes() + ":" 
+	+ (dateJoin.getMonth()+1)  + "/"
+	+ dateJoin.getDate() + " @ "
+	+ dateJoin.getHours() + ":"
+	+ dateJoin.getMinutes() + ":"
 	+ dateJoin.getSeconds();
 	console.log(datetime);
 	// yyyymmddをコレクションIDとし、参加情報(ユーザー情報・入退室時刻)をドキュメントとして保存している。参加者であるかの判断のためコレクションIDを取得
@@ -151,7 +163,7 @@ client.on('messageCreate', async message => {
 		const doc = await docRef.get()
 		if (doc.exists) {
 			console.log("ボイスチャンネル参加中のユーザーのため、発言を記録します")
-			docRef.set({ 
+			docRef.set({
 				comment:FieldValue.arrayUnion(message.content)
 			},{merge: true});
 		} else {
@@ -159,7 +171,7 @@ client.on('messageCreate', async message => {
 		}
 	})
 
-client.on('guildScheduledEventUpdate', async(oldState,newState) => {
+client.on('guildScheduledEventUpdate', async(oldState, newState) => {
     console.log(oldState)
 	console.log(newState)
 	const FieldValue = require('firebase-admin').firestore.FieldValue;
@@ -191,17 +203,16 @@ client.on('guildScheduledEventUpdate', async(oldState,newState) => {
 		var dateUnix = Date.now();
 		var dateJoin = new Date();
 		var datetime = dateJoin.getFullYear() + "/"
-		+ (dateJoin.getMonth()+1)  + "/" 
-		+ dateJoin.getDate() + " @ "  
-		+ dateJoin.getHours() + ":"  
-		+ dateJoin.getMinutes() + ":" 
+		+ (dateJoin.getMonth()+1)  + "/"
+		+ dateJoin.getDate() + " @ "
+		+ dateJoin.getHours() + ":"
+		+ dateJoin.getMinutes() + ":"
 		+ dateJoin.getSeconds();
 		var y = dateJoin.getFullYear().toString()
 		var m = ("00" + (dateJoin.getMonth()+1)).slice(-2).toString();
 		var d = ("00" + (dateJoin.getDate())).slice(-2).toString();
 		const id = y + m + d
 		const snapshot = await db.collectionGroup("attendances").where("id", "==", id).get()
-		// const snapshot = await attendancesRef.get()		
 		for await (const doc of snapshot.docs) {
 			// inunixがない場合は処理をスキップ
 			console.log("処理対象ユーザー名=>",doc.data().username)
@@ -217,7 +228,7 @@ client.on('guildScheduledEventUpdate', async(oldState,newState) => {
 			// Math.maxは空の配列であれば-∞を返すため適切に処理ができる。
 			if (Math.max(...doc.data().inunix)>Math.max(...doc.data().outunix)) {
 				console.log("滞在履歴ありのため入室時刻を新たに記録します。userid=>",doc.data().userid,"username=>",doc.data().username)
-				doc.ref.set({ 
+				doc.ref.set({
 					in: FieldValue.arrayUnion(datetime),
 					inunix:FieldValue.arrayUnion(startTime),
 				},{merge: true});
@@ -231,7 +242,7 @@ client.on('guildScheduledEventUpdate', async(oldState,newState) => {
 		// イベント終了日時のunix変換
 		var dateJoin = new Date();
 		var datetime = dateJoin.toISOString(dateUnix);
-		
+
 		var y = dateJoin.getFullYear().toString()
 		var m = ("00" + (dateJoin.getMonth()+1)).slice(-2).toString();
 		var d = ("00" + (dateJoin.getDate())).slice(-2).toString();
@@ -294,8 +305,8 @@ client.on('guildScheduledEventUpdate', async(oldState,newState) => {
 				attendTime = ~~((exitedTimeStamp - attendedTimeStamp)/60000)
 				console.log(doc.data().username,'さん');
 				console.log(attendTime,'分参加');
-				// 参加時間が10分以上の場合は配列に格納
-				if (attendTime >= 0) {
+				// 参加時間が5分以上の場合は配列に格納
+				if (attendTime >= 5) {
 					arr.push(doc.data().userid)
 				}
 			}
@@ -313,9 +324,7 @@ client.on('guildScheduledEventUpdate', async(oldState,newState) => {
 			userid: arr
 		}
 		await notionPageUpdate(reputationData)
-		// https://discord.com/api/oauth2/authorize?client_id=1051171120277102664&permissions=8623492096&scope=bot
 	}
 });
 
-client.login(process.env.voiceToken).catch(console.error);
-
+client.login(process.env.DISCORD_EVENT_BOT_TOKEN).catch(console.error);
