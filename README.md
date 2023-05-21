@@ -25,3 +25,9 @@ npm install
 ```shell
 npm start
 ```
+
+## 本番環境
+
+```shell
+pm2 start pm2.config.js
+```
