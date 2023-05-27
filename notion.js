@@ -9,7 +9,9 @@ const notionPageUpdate = async (data) => {
 		const users = [];
 		for (const userId of data.userid) {
 			const user = await userQuery(userId);
-			users.push(user);
+			if (user) {
+				users.push(user);
+			}
 		}
 
 		// data.imageがundefinedか、空文字の場合は、仮の画像を設定する
@@ -95,9 +97,14 @@ const userQuery = async (userid) => {
 	}
 
 	const userDBResponse = await notion.databases.query(userRequest);
-	const userDataId = userDBResponse.results[0].id;
-	const user = { id: userDataId };
-	return user;
+	if (userDBResponse.results.length > 0) {
+		const userDataId = userDBResponse.results[0].id;
+		const user = { id: userDataId };
+		return user;
+	} else {
+		console.error(`User ${userid} doesn't exist in the Members DB yet`);
+		return null;
+	}
 }
 
 
