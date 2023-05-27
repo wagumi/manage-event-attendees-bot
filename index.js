@@ -34,7 +34,6 @@ client.on('voiceStateUpdate', async(oldState, newState) => {
 		+ dateJoin.getHours() + ":"
 		+ dateJoin.getMinutes() + ":"
 		+ dateJoin.getSeconds();
-	console.log(datetime);
 
 	// yyyymmddをコレクションIDとし、参加情報(ユーザー情報・入退室時刻)をドキュメントとして保存
 	var y = dateJoin.getFullYear().toString()
@@ -104,7 +103,6 @@ client.on('voiceStateUpdate', async(oldState, newState) => {
 			+ dateJoin.getHours() + ":"
 			+ dateJoin.getMinutes() + ":"
 			+ dateJoin.getSeconds();
-		console.log(datetime);
 
 		const userid = newState.member.user.id
 		const username = oldState.member.user.username
@@ -150,7 +148,7 @@ client.on('messageCreate', async message => {
 	+ dateJoin.getHours() + ":"
 	+ dateJoin.getMinutes() + ":"
 	+ dateJoin.getSeconds();
-	console.log(datetime);
+
 	// yyyymmddをコレクションIDとし、参加情報(ユーザー情報・入退室時刻)をドキュメントとして保存している。参加者であるかの判断のためコレクションIDを取得
 	var y = dateJoin.getFullYear().toString()
 	var m = ("00" + (dateJoin.getMonth()+1)).slice(-2).toString();
